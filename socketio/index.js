@@ -1,18 +1,33 @@
-const express = require('express')
-const app = express()
-const http = require('http')
-const server = http.createServer(app)
-const { Server } = require('socket.io')
-const io = new Server(server)
+require('dotenv').config()
+// const Message = require('./models/message')
+// var createError = require('http-errors')
+var express = require('express')
+// var path = require('path')
+// var cookieParser = require('cookie-parser')
+// var logger = require('morgan')
+// const jwt = require('jsonwebtoken')
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello world</h1>')
+// -----------------------------------------------------------------------
+const server = require('http').Server(app)
+const io = require('socket.io')(server, {
+  cors: {
+    origin: process.env.FRONT_ENDPOINT,
+    methods: ['GET', 'POST']
+  }
 })
 
+// Socket connection
 io.on('connection', (socket) => {
-  console.log('a user connected')
+  // When user is connected to socket
+  console.log(`[+] ${socket.id} from ${socket.handshake.auth.conv_id}`)
+
+  // When user disconnect from socket
+  socket.on('disconnect', () => {
+    console.log(`[-] ${socket.id} from ${socket.handshake.auth.conv_id}`)
+  })
 })
 
-server.listen(3001, () => {
-  console.log('listening on *:3001')
+// on change app par server
+server.listen(process.env.SOCKET_PORT, function () {
+  console.log(`Votre app est disponible sur localhost:${process.env.SOCKET_PORT} !`)
 })
