@@ -2,7 +2,7 @@
   <article class="restaurant-list">
     <h2>Liste des restaurants</h2>
     <ul class="restaurant-list--list">
-      <li class="restaurant-list--restaurant" v-for="restaurant in restaurants">
+      <li class="restaurant-list--restaurant" v-for="restaurant in restaurants" :key="restaurant.id">
         <p class="restaurant--title">{{ restaurant.name }}</p>
         <p class="restaurant--coordinates">lat: {{ restaurant.loc[0] }}, long: {{ restaurant.loc[1] }}</p>
       </li>
@@ -16,10 +16,12 @@ export default {
     return {
       restaurants: [
         {
+          id: 1,
           name: "KFC",
           loc: [48.89062, 2.23673]
         },
         {
+          id: 2,
           name: "restaurant 2",
           loc: [48.88062, 2.22673]
         }
@@ -29,7 +31,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .restaurant-list {
   padding: 1rem;
 }
@@ -38,7 +40,6 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
   list-style: none;
   margin-top: 1.5rem;
 }

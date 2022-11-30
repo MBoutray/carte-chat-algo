@@ -30,7 +30,9 @@
   margin: 0;
   padding: 0;
 }
+</style>
 
+<style scoped>
 #content {
   display: grid;
   grid-template-columns: 2fr 7fr 3fr;
