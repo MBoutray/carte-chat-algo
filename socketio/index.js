@@ -39,6 +39,12 @@ io.on('connection', (socket) => {
     console.log(`user ${socket.id} left channel ${room.name}`)
   })
 
+  // When the user connects to the app
+  socket.on('login', (user) => {})
+
+  // When the user disconnects from the app
+  socket.on('logout', (user) => {})
+
   // When user disconnect from socket
   socket.on('disconnect', () => {
     console.log(`[-] ${socket.id} from ${socket.handshake.auth.conv_id}`)
