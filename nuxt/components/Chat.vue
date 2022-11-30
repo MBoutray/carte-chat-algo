@@ -2,7 +2,7 @@
   <article class="chatrooms">
     <h2>Chatrooms</h2>
     <ul class="chatrooms-list--list">
-      <li class="chatrooms-list--chatroom" v-for="chatroom in rooms">
+      <li class="chatrooms-list--chatroom" v-for="chatroom in rooms" @click="onClickChatroom(chatroom)">
         <p class="chatroom--title">{{ chatroom.name }}</p>
       </li>
     </ul>
@@ -33,6 +33,11 @@ export default {
       ]
     };
   },
+  methods: {
+    onClickChatroom(room) {
+      this.$emit('chatroomClicked', { id: room.id, name: room.name });
+    }
+  }
 }
 </script>
 
