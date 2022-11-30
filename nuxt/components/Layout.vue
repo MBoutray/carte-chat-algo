@@ -11,14 +11,16 @@
 
   <body>
     <div id="content">
-      <RestaurantList />
-      <Map />
-      <Chat />
+      <slot></slot>
     </div>
   </body>
 
   </html>
 </template>
+
+<script>
+
+</script>
 
 <style>
 *,
