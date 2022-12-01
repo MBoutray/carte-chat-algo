@@ -23,7 +23,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .restaurant-list {
   padding: 1rem;
 }
@@ -32,7 +32,6 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
   list-style: none;
   margin-top: 1.5rem;
 }
@@ -42,11 +41,17 @@ export default {
   border: 1px solid black;
   border-radius: 1rem;
   transition: box-shadow 0.1s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
 }
 
 .restaurant-list--restaurant:hover,
 .restaurant-list--restaurant:focus-within {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.restaurant-list--restaurant:active {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
 li+li {
