@@ -1,9 +1,9 @@
 <template>
     <div id="map-wrap" style="height: 100vh">
         <client-only>
-            <l-map :zoom="16" :center="center" @click="addRdv">
+            <l-map :zoom="16" :center="userPosition" @click="addRdv">
                 <l-tile-layer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></l-tile-layer>
-                <l-marker :lat-lng="center" :icon="iconPerson"></l-marker>
+                <l-marker :lat-lng="userPosition" :icon="iconPerson"></l-marker>
                 <l-marker v-if="rdv" :lat-lng="rdv" :icon="iconRdv"></l-marker>
                 <l-polyline v-if="polyline" :lat-lngs="polyline"></l-polyline>
                 <l-marker
@@ -24,7 +24,7 @@ export default {
     components: { RestaurantList },
     data() {
         return {
-            center: [47.89324, 3.22692],
+            userPosition: [47.89324, 3.22692],
             iconPerson: icon({
                 iconUrl: '/images/pink-marker.png',
                 iconSize: [32, 37],
@@ -62,13 +62,13 @@ export default {
     methods: {
         getUserLocation() {
             navigator.geolocation.getCurrentPosition((position) => {
-                this.center = [position.coords.latitude, position.coords.longitude]
+                this.userPosition = [position.coords.latitude, position.coords.longitude]
             })
         },
         addRdv(event) {
             this.rdv = [event.latlng.lat, event.latlng.lng]
             this.polyline = []
-            this.polyline.push(this.center)
+            this.polyline.push(this.userPosition)
             this.polyline.push(this.rdv)
             this.getDistance(this.polyline[0], this.polyline[1])
         },
@@ -81,13 +81,13 @@ export default {
                 if (event.latlng) {
                     console.log('if')
                     this.polyline = []
-                    this.polyline.push(this.center)
+                    this.polyline.push(this.userPosition)
                     this.polyline.push(this.rdv)
                     this.polyline.splice(1, 0, [event.latlng.lat, event.latlng.lng])
                 } else {
                     console.log('else')
                     this.polyline = []
-                    this.polyline.push(this.center)
+                    this.polyline.push(this.userPosition)
                     this.polyline.push(this.rdv)
                     this.polyline.splice(1, 0, [this.restoSelected.loc[0], this.restoSelected.loc[1]])
                 }
