@@ -13,6 +13,9 @@ const io = new Server(httpServer, {
   }
 })
 
+// user dataset
+const users = []
+
 // Socket connection
 io.on('connection', (socket) => {
   // When user is connected to socket
@@ -21,10 +24,8 @@ io.on('connection', (socket) => {
   // When received a new message from user
   socket.on('send_message', (payload) => {
     console.log('message received', payload)
-    io.to(payload.room.name).emit('emit_message', {
-      user: payload.user,
-      content: payload.content
-    })
+    // Send to the the users in the same chat room
+    io.to(payload.room.name).emit('emit_message', payload)
   })
 
   // When user joined a chatroom
@@ -40,10 +41,48 @@ io.on('connection', (socket) => {
   })
 
   // When the user connects to the app
-  socket.on('login', (user) => {})
+  socket.on('login', (username, callback) => {
+    // Check if the user is in the users array
+    if (users.some((u) => u.username === username)) {
+      // If yes, return an error saying that the user is already connected
+      console.log('user already connected')
+      callback({ status: 'error', content: 'Username already taken' })
+    } else {
+      // If no, add the user to the users array and return the user
+
+      // Find the next available id
+      let nextAvailableId = 1
+
+      if (users.length > 0) {
+        nextAvailableId = users[users.length - 1].id + 1
+      }
+
+      // Create a new user
+      const user = { id: nextAvailableId, username: username }
+
+      // Add the user to the users array
+      users.push(user)
+
+      console.log('user connected', users)
+      // Return the user
+      callback({ status: 'ok', content: user })
+    }
+  })
 
   // When the user disconnects from the app
-  socket.on('logout', (user) => {})
+  socket.on('logout', (user) => {
+    // If the user is in the users array
+    if (users.some((u) => u.id === user.id)) {
+      // Remove the user from the users array
+      users.splice(
+        users.findIndex((u) => u.id === user.id),
+        1
+      )
+
+      // Notify all the users that the user has left the app
+      io.emit('user_left', user)
+    }
+  })
 
   // When user disconnect from socket
   socket.on('disconnect', () => {

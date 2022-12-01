@@ -1,7 +1,7 @@
 <template>
   <article class="chat">
     <ChatroomSelection v-if="!chatroom" @chatroomClicked="onChatroomClicked" />
-    <Chatroom v-else :chatroom="this.chatroom" @returnClicked="onReturnClicked" />
+    <Chatroom v-else :user="this.user" :chatroom="this.chatroom" @returnClicked="onReturnClicked" />
   </article>
 </template>
 
@@ -9,6 +9,7 @@
 import socket from '@/services/socket-client.js'
 
 export default {
+  props: ['user'],
   data() {
     return {
       chatroom: null

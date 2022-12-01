@@ -1,9 +1,9 @@
 <template>
   <div id="content">
-    <LoginScreen @login="onLogin" v-if="username == ''" />
+    <LoginScreen @userLoggedIn="onLogin" v-if="!user" />
     <RestaurantList />
     <Map />
-    <Chat />
+    <Chat :user="this.user" />
   </div>
 </template>
 
@@ -11,13 +11,13 @@
 export default {
   data() {
     return {
-      username: ''
+      user: null
     }
   },
   methods: {
-    onLogin(username) {
-      this.username = username;
-    }
+    onLogin(user) {
+      this.user = user;
+    },
   }
 }
 </script>

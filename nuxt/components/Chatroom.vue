@@ -2,17 +2,16 @@
   <article class="chatroom">
     <header class="chatroom--header">
       <button @click.prevent="onReturnClick">Return</button>
-      <p>#{{ chatroom?.id ?? "num" }} : {{ chatroom.name ?? "name" }}</p>
+      <p>#{{ chatroom.id }} : {{ chatroom.name }}</p>
     </header>
     <div class="chatroom--content">
       <ul class="message-list" ref="message_list">
-        <li class="message" v-for="message in messages" :key="message.id"
-          :class="{ you: currentUser.id == message.user.id }">
+        <li class="message" v-for="message in messages" :key="message.id" :class="{ you: user.id == message.user.id }">
           <header class="message--header">
-            <p class="message--sender">{{ message.user.name }}</p>
+            <p class="message--sender">de: {{ message.user.username }}</p>
           </header>
           <div class="message--content">
-            <p class="message--title">{{ message.title }}</p>
+            <!-- <p class="message--title">{{ message.title }}</p> -->
             <p class="message--text">{{ message.content }}</p>
           </div>
         </li>
@@ -32,48 +31,63 @@
 import socket from '@/services/socket-client.js';
 
 export default {
-  props: ["chatroom"],
+  props: ["chatroom", "user"],
   data() {
     return {
       messages: [
-        {
-          id: 1,
-          user: {
-            id: 1,
-            name: "user 1",
-          },
-          title: "title 1",
-          content: "lorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit amet",
-        },
-        {
-          id: 2,
-          user: {
-            id: 2,
-            name: "user 2",
-          },
-          title: "title 1",
-          content: "lorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit amet",
-        },
-        {
-          id: 3,
-          user: {
-            id: 3,
-            name: "user 3",
-          },
-          title: "title 1",
-          content: "lorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit amet",
-        },
+        // {
+        //   id: 1,
+        //   user: {
+        //     id: 1,
+        //     name: "user 1",
+        //   },
+        //   title: "title 1",
+        //   content: "lorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit amet",
+        // },
+        // {
+        //   id: 2,
+        //   user: {
+        //     id: 2,
+        //     name: "user 2",
+        //   },
+        //   title: "title 1",
+        //   content: "lorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit amet",
+        // },
+        // {
+        //   id: 3,
+        //   user: {
+        //     id: 3,
+        //     name: "user 3",
+        //   },
+        //   title: "title 1",
+        //   content: "lorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit amet",
+        // },
       ],
-      currentUser: {
-        id: 1,
-        name: "user 1",
-      },
+      // currentUser: {
+      //   id: 1,
+      //   name: "user 1",
+      // },
       message_value: ""
     }
   },
   mounted() {
+    // When a message is received
     socket.on('emit_message', (message) => {
+      // Get the last id available
+      let nextId = 1;
+
+      if (this.messages.length > 0) {
+        nextId = this.messages[this.messages.length - 1].id + 1;
+      }
+
+      // Add the id to the message
+      console.log("avant message id add")
+      message.id = nextId;
+
+      console.log('received a message', message)
+      // Add the message to the messages array
       this.messages.push(message)
+      console.log('messages', this.messages)
     })
   },
   methods: {
@@ -82,13 +96,13 @@ export default {
     },
     sendMessage() {
       let message = {
-        user: {
-          id: 1,
-          name: "user 1",
-        },
+        id: null,
+        user: this.user,
         content: this.message_value,
         room: this.chatroom
       }
+
+      // this.messages.push
 
       socket.emit('send_message', message);
     },
