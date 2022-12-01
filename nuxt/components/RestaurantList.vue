@@ -2,7 +2,7 @@
   <article class="restaurant-list">
     <h2>Liste des restaurants</h2>
     <ul class="restaurant-list--list">
-      <li class="restaurant-list--restaurant" v-for="restaurant in restaurants">
+      <li class="restaurant-list--restaurant" v-for="(restaurant, index) in restaurants" :key="index" @click="selectResto(restaurant)">
         <p class="restaurant--title">{{ restaurant.name }}</p>
         <p class="restaurant--coordinates">lat: {{ restaurant.loc[0] }}, long: {{ restaurant.loc[1] }}</p>
       </li>
@@ -12,18 +12,12 @@
 
 <script>
 export default {
-  data() {
-    return {
-      restaurants: [
-        {
-          name: "KFC",
-          loc: [48.89062, 2.23673]
-        },
-        {
-          name: "restaurant 2",
-          loc: [48.88062, 2.22673]
-        }
-      ]
+  props: {
+    restaurants: [],
+  },
+  methods: {
+    selectResto(restaurant) {
+      this.$emit('restoSelected', restaurant);
     }
   }
 }
