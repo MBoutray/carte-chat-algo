@@ -1,5 +1,6 @@
 require('dotenv').config()
 
+const Room = require('../nuxt/models/rooms')
 const express = require('express')
 const { createServer } = require('http')
 const { Server } = require('socket.io')
@@ -16,6 +17,34 @@ const io = new Server(httpServer, {
 // user dataset
 const users = []
 
+// rooms dataset
+const rooms = [
+  new Room(1),
+  new Room(2),
+  new Room(3),
+  new Room(4)
+  // {
+  //   id: 1,
+  //   name: 'room 1',
+  //   users: [],
+  //   map: {
+  //     rdv: null
+  //   }
+  // },
+  // {
+  //   id: 2,
+  //   name: 'room 2'
+  // },
+  // {
+  //   id: 3,
+  //   name: 'room 3'
+  // },
+  // {
+  //   id: 4,
+  //   name: 'room 4'
+  // }
+]
+
 // Socket connection
 io.on('connection', (socket) => {
   // When user is connected to socket
@@ -24,19 +53,53 @@ io.on('connection', (socket) => {
   // When received a new message from user
   socket.on('send_message', (payload) => {
     console.log('message received', payload)
+
+    // find the room
+    const room = rooms.find((room) => room.id === payload.room.id)
+
+    // get the next message id
+    const nextMessageId = room.messages.length + 1
+
+    // add the message to the room
+    room.addMessage({ id: nextMessageId, user: payload.user, content: payload.content })
+
+    console.log('new room messages', room.messages)
+
     // Send to the the users in the same chat room
-    io.to(payload.room.name).emit('emit_message', payload)
+    io.to(payload.room.name).emit('emit_message', room)
   })
 
   // When user joined a chatroom
-  socket.on('user_joined_room', (room) => {
+  socket.on('user_joined_room', (room, user, callback) => {
     socket.join(room.name)
+
+    // Find the room in the rooms dataset
+    const roomFound = rooms.find((r) => r.id === room.id)
+
+    // Add the user to the room
+    roomFound.addUser(user)
+
+    // Send to the users in the same chat room
+    io.to(room.name).emit('user_joined_room', roomFound)
+
     console.log(`user ${socket.id} joined channel ${room.name}`)
+
+    callback(roomFound)
   })
 
   // When user left chatroom
-  socket.on('user_left_room', (room) => {
+  socket.on('user_left_room', (room, user) => {
     socket.leave(room.name)
+
+    // Find the room in the rooms dataset
+    const roomFound = rooms.find((r) => r.id === room.id)
+
+    // Remove the user from the room
+    roomFound.removeUser(user)
+
+    // Send the new data to the users in the same chat room
+    io.to(room.name).emit('user_left_room', roomFound)
+
     console.log(`user ${socket.id} left channel ${room.name}`)
   })
 
@@ -65,7 +128,7 @@ io.on('connection', (socket) => {
 
       console.log('user connected', users)
       // Return the user
-      callback({ status: 'ok', content: user })
+      callback({ status: 'ok', content: { user: user, rooms: rooms } })
     }
   })
 

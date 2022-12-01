@@ -12,26 +12,9 @@
 <script>;
 
 export default {
+  props: ['rooms'],
   data() {
     return {
-      rooms: [
-        {
-          id: 1,
-          name: "room 1",
-        },
-        {
-          id: 2,
-          name: "room 2",
-        },
-        {
-          id: 3,
-          name: "room 3",
-        },
-        {
-          id: 4,
-          name: "room 4",
-        },
-      ]
     };
   },
   methods: {
