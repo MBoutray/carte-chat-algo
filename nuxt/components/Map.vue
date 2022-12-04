@@ -3,7 +3,7 @@
     <client-only>
       <div v-if="rdvError === true" class="overlay">Il faut mettre un point de rendez-vous</div>
       <div v-if="rdvSet === true" class="infoRdv">
-        <p>Le rdv est à <input id="timeRdv" type="time" :value="heureRdv" @change="calculTravelTime" />.&nbsp;</p>
+        <p>Le rdv est à <input id="timeRdv" type="time" v-model="heureRdv" @change="calculTravelTime" />.&nbsp;</p>
         <p>Il faut donc partir à {{ timeToGo }}</p>
       </div>
 
@@ -161,9 +161,6 @@ export default {
       this.timeToGo = time.format(`HH [${hourFormatStr}] mm [${minuteFormatStr}]`)
     },
     calculTravelTime(heureRdv) {
-      if (!this.heureRdv) {
-        this.heureRdv = heureRdv.target.value
-      }
       this.timeToGo = moment.utc(moment.duration(this.temps, 'minutes').asMilliseconds()).format('HH:mm')
       this.timeToGo = moment.duration(this.heureRdv).asMinutes() - moment.duration(this.timeToGo).asMinutes()
       this.formatTime(this.timeToGo)
