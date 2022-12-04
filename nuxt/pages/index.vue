@@ -32,7 +32,6 @@ export default {
   },
   mounted() {
     socket.on('server-map-data', (rooms) => {
-      console.log('server-map-data', rooms)
       this.rooms = rooms
     })
 

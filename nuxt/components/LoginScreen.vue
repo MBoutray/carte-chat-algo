@@ -29,12 +29,7 @@ export default {
         if (response.status === 'ok') {
           // Send the user to the app component
           this.$emit('userLoggedIn', response.content)
-
-          console.log('user logged in', response.content)
-
-          // TODO Save the user to the local session
         } else {
-          console.log('Error while logging in', response)
           alert(response.content)
         }
       });

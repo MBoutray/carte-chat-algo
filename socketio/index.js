@@ -32,8 +32,6 @@ io.on('connection', (socket) => {
 
   // When received a new message from user
   socket.on('send_message', (payload) => {
-    console.log('message received', payload)
-
     // find the room
     const room = rooms.find((room) => room.id === payload.room.id)
 
@@ -42,8 +40,6 @@ io.on('connection', (socket) => {
 
     // add the message to the room
     room.addMessage({ id: nextMessageId, user: payload.user, content: payload.content })
-
-    console.log('new room messages', room.messages)
 
     // Send to the the users in the same chat room
     io.to(payload.room.name).emit('emit_message', rooms)
@@ -87,7 +83,6 @@ io.on('connection', (socket) => {
     // Check if the user is in the users array
     if (users.some((u) => u.username === username)) {
       // If yes, return an error saying that the user is already connected
-      console.log('user already connected')
       callback({ status: 'error', content: 'Username already taken' })
     } else {
       // If no, add the user to the users array and return the user
@@ -105,7 +100,6 @@ io.on('connection', (socket) => {
       // Add the user to the users array
       users.push(user)
 
-      console.log('user connected', users)
       // Return the user
       callback({ status: 'ok', content: { user: user, rooms: rooms } })
     }
@@ -128,44 +122,33 @@ io.on('connection', (socket) => {
 
   // When the user modifies map data
   socket.on('user-map-data', (data) => {
-    if(data.user) {
+    if (data.user) {
       // Find the room in the rooms dataset
-      console.log('user-map-data', data)
       let roomFound = rooms.find((r) => r.users.some((u) => u.id === data.user.id))
 
-      console.log('roomFound', roomFound)
-      
-      if(roomFound) {
+      if (roomFound) {
         // Find the user data in the room to update
         let userData = roomFound?.map.userData.find((u) => u.id === data.user.id)
-        console.log('userData', userData )
-        
+
         // Update the user data
         if (userData) {
           roomFound.map.rdv = data.rdv
           userData.resto = data.restoSelected
           userData.position = data.userPosition
-          
-          console.log('update user data : roomFound', roomFound)
-          console.log('update user data : userData', userData )
         } else {
           roomFound.map.rdv = data.rdv
           roomFound.map.userData.push({
             id: data.user.id,
             username: data.user.username,
             resto: data.restoSelected,
-            position: data.userPosition,
+            position: data.userPosition
           })
-          console.log('update user data : roomFound', roomFound)
         }
-  
-        console.log('final room', rooms)
-        console.log('socket rooms', socket.rooms)
-    
+
         // Send the new data to the users in the same chat room
         io.to(roomFound.name).emit('server-map-data', rooms)
       }
-      }
+    }
   })
 
   // When user disconnect from socket
