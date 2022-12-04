@@ -1,12 +1,23 @@
 <template>
-  <div id="map-wrap" style="height: 100vh">
+  <div id="map-wrap">
     <client-only>
+      <div v-if="rdvError === true" class="overlay">Il faut mettre un point de rendez-vous</div>
+      <div v-if="rdvSet === true" class="infoRdv">
+        <label>Le rdv est à </label>
+        <input id="timeRdv" type="time" :value="heureRdv" @change="calculTravelTime" />
+        <p>Il faut donc partir à {{ timeToGo }}</p>
+      </div>
+
       <l-map :zoom="16" :center="userPosition" @click="addRdv">
         <l-tile-layer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></l-tile-layer>
         <l-marker :lat-lng="userPosition" :icon="iconPerson"></l-marker>
         <l-marker v-if="rdv" :lat-lng="rdv" :icon="iconRdv"></l-marker>
         <l-polyline v-if="polyline" :lat-lngs="polyline"></l-polyline>
-        <l-marker v-for="(resto, index) in restaurants" :key="index" :lat-lng="resto.loc" :icon="iconResto"
+        <l-marker
+          v-for="(resto, index) in restaurants"
+          :key="index"
+          :lat-lng="resto.loc"
+          :icon="iconResto"
           @click="passByResto"></l-marker>
       </l-map>
     </client-only>
@@ -15,11 +26,10 @@
 
 <script>
 import { icon } from 'leaflet'
-import RestaurantList from './RestaurantList.vue'
 import socket from '@/services/socket-client.js'
+import moment from 'moment'
 
 export default {
-  components: { RestaurantList },
   data() {
     return {
       userPosition: [47.89324, 3.22692],
@@ -39,11 +49,15 @@ export default {
         iconAnchor: [16, 37]
       }),
       rdv: null,
+      heureRdv: null,
       polyline: [],
       distance: 0,
       temps: 0,
+      timeToGo: null,
       restoSelected: null,
-      currentRoom: null
+      currentRoom: null,
+      rdvError: false,
+      rdvSet: false
     }
   },
   props: {
@@ -93,21 +107,20 @@ export default {
       this.polyline.push(this.userPosition)
       this.polyline.push(this.rdv)
       this.getDistance(this.polyline[0], this.polyline[1])
+      this.rdvError = false
+      this.rdvSet = false
     },
     passByResto(event) {
       if (this.rdv) {
         let t1 = 0
         let t2 = 0
         this.restoSelected = this.restoToMap
-        console.log(this.restoSelected)
         if (event.latlng) {
-          console.log('if')
           this.polyline = []
           this.polyline.push(this.userPosition)
           this.polyline.push(this.rdv)
           this.polyline.splice(1, 0, [event.latlng.lat, event.latlng.lng])
         } else {
-          console.log('else')
           this.polyline = []
           this.polyline.push(this.userPosition)
           this.polyline.push(this.rdv)
@@ -118,6 +131,12 @@ export default {
         this.getDistance(this.polyline[1], this.polyline[2])
         t2 = this.temps
         this.temps = t1 + t2
+        this.rdvSet = true
+        if (this.heureRdv) {
+          this.calculTravelTime()
+        }
+      } else {
+        this.rdvError = true
       }
     },
     getDistance(marker1, marker2) {
@@ -130,7 +149,64 @@ export default {
       this.distance =
         Math.acos(Math.sin(lat1) * Math.sin(lat2) + Math.cos(lat1) * Math.cos(lat2) * Math.cos(long2 - long1)) * 6371
       this.temps = Math.trunc((this.distance / vitesse) * 60) + 1
+    },
+    formatTime(time) {
+      time = moment.utc(moment.duration(this.timeToGo, 'minutes').asMilliseconds())
+      const minutes = time.minutes()
+      const hours = time.hours()
+      const hourFormatStr = hours === 1 ? 'h' : 'h'
+      const minuteFormatStr = minutes === 1 ? 'm' : 'm'
+      if (!time.minutes()) {
+        this.timeToGo = time.format(`HH [${hourFormatStr}]`)
+      }
+      this.timeToGo = time.format(`HH [${hourFormatStr}] mm [${minuteFormatStr}]`)
+    },
+    calculTravelTime(heureRdv) {
+      if (!this.heureRdv) {
+        this.heureRdv = heureRdv.target.value
+      }
+      this.timeToGo = moment.utc(moment.duration(this.temps, 'minutes').asMilliseconds()).format('HH:mm')
+      this.timeToGo = moment.duration(this.heureRdv).asMinutes() - moment.duration(this.timeToGo).asMinutes()
+      this.formatTime(this.timeToGo)
     }
   }
 }
 </script>
+
+<style scoped>
+#map-wrap {
+  height: 100vh
+}
+
+.overlay {
+  position: absolute;
+  padding: 1rem 2rem;
+  z-index: 999;
+  background-color: rgba(255, 66, 66, 0.734);
+  width: 50%;
+  left: 50%;
+  transform: translate(-50%);
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  border-radius: 20px;
+}
+
+.infoRdv {
+  position: absolute;
+  padding: 1rem 2rem;
+  z-index: 1000;
+  background-color: rgba(66, 170, 255, 0.734);
+  width: 50%;
+  left: 50%;
+  transform: translate(-50%);
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  border-radius: 20px;
+}
+</style>
