@@ -46,7 +46,7 @@ io.on('connection', (socket) => {
     console.log('new room messages', room.messages)
 
     // Send to the the users in the same chat room
-    io.to(payload.room.name).emit('emit_message', room)
+    io.to(payload.room.name).emit('emit_message', rooms)
   })
 
   // When user joined a chatroom
@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
     roomFound.addUser(user)
 
     // Send to the users in the same chat room
-    io.to(room.name).emit('user_joined_room', roomFound)
+    io.to(room.name).emit('user_joined_room', rooms)
 
     console.log(`user ${socket.id} joined channel ${room.name}`)
 
@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
     roomFound.removeUser(user)
 
     // Send the new data to the users in the same chat room
-    io.to(room.name).emit('user_left_room', roomFound)
+    io.to(room.name).emit('user_left_room', rooms)
 
     console.log(`user ${socket.id} left channel ${room.name}`)
   })

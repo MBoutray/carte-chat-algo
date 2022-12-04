@@ -25,9 +25,21 @@ export default {
     }
   },
   mounted() {
-    socket.on('server-map-data', (payload) => {
-      console.log('server-map-data', payload)
-      this.rooms = payload
+    socket.on('server-map-data', (rooms) => {
+      console.log('server-map-data', rooms)
+      this.rooms = rooms
+    })
+
+    socket.on('emit_message', (rooms) => {
+      this.rooms = rooms
+    })
+
+    socket.on('user_joined_room', (rooms) => {
+      this.rooms = rooms
+    })
+
+    socket.on('user_left_room', (rooms) => {
+      this.rooms = rooms
     })
   },
   methods: {

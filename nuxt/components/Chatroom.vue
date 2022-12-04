@@ -48,13 +48,6 @@ export default {
       message_value: ""
     }
   },
-  mounted() {
-    // When a message is received
-    socket.on('emit_message', (room) => {
-      // load the room data
-      this.chatroom = room
-    })
-  },
   methods: {
     onReturnClick() {
       this.$emit('returnClicked');

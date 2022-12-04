@@ -15,6 +15,11 @@ export default {
       chatroom: null
     }
   },
+  watch: {
+    rooms() {
+      this.chatroom = this.rooms.find(room => room.id === this.chatroom?.id)
+    }
+  },
   mounted() {
     socket.connect()
     console.log('socket connected')
