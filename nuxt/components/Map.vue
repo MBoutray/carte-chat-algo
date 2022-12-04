@@ -82,7 +82,7 @@ export default {
       this.onDataChange()
     },
     rooms(newValue, oldValue) {
-      this.currentRoom = newValue?.find(room => room.id === this.currentRoom?.id)
+      this.currentRoom = newValue?.find(room => room.users.find(user => user.id === this.user.id))
     }
   },
   methods: {

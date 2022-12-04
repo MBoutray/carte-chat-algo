@@ -69,8 +69,6 @@ io.on('connection', (socket) => {
 
   // When user left chatroom
   socket.on('user_left_room', (room, user) => {
-    socket.leave(room.name)
-
     // Find the room in the rooms dataset
     const roomFound = rooms.find((r) => r.id === room.id)
 
@@ -80,6 +78,7 @@ io.on('connection', (socket) => {
     // Send the new data to the users in the same chat room
     io.to(room.name).emit('user_left_room', rooms)
 
+    socket.leave(room.name)
     console.log(`user ${socket.id} left channel ${room.name}`)
   })
 
