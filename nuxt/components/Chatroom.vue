@@ -1,8 +1,18 @@
 <template>
   <article class="chatroom">
     <header class="chatroom--header">
-      <button @click.prevent="onReturnClick">Return</button>
-      <p>#{{ chatroom.id }} : {{ chatroom.name }}</p>
+      <div class="action-bar">
+        <button @click.prevent="onReturnClick">Return</button>
+        <p>#{{ chatroom.id }} : {{ chatroom.name }}</p>
+      </div>
+      <div class="user-list">
+        <p class="user-list--title">Users: </p>
+        <ul class="user-list--list">
+          <li class="user-list--user" v-for="user in chatroom.users" :key="user.id">
+            <p class="user--name">{{ user.username }}</p>
+          </li>
+        </ul>
+      </div>
     </header>
     <div class="chatroom--content">
       <ul class="message-list" ref="message_list">
@@ -57,7 +67,7 @@ export default {
         room: this.chatroom
       }
 
-      // this.messages.push
+      this.message_value = ""
 
       socket.emit('send_message', message);
     },
@@ -82,8 +92,29 @@ export default {
 
 .chatroom--header {
   display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.action-bar {
+  display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.user-list {
+  display: flex;
+  justify-content: space-around;
+  gap: 0.5rem;
+}
+.user-list--title {
+  font-weight: bold;
+}
+.user-list--list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
 .chatroom--content {
@@ -131,5 +162,8 @@ export default {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.2rem;
+}
+.chatroom--footer input[type="text"] {
+  width: 100%;
 }
 </style>

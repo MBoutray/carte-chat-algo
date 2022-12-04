@@ -50,6 +50,15 @@ export default {
   margin: 0;
   padding: 0;
 }
+
+html {
+  font-family: sans-serif;
+  font-size: 62.5%;
+}
+
+body {
+  font-size: 1.6rem;
+}
 </style>
 
 <style scoped>
