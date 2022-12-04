@@ -42,20 +42,18 @@ export default {
       polyline: [],
       distance: 0,
       temps: 0,
-      restoSelected: null
+      restoSelected: null,
+      currentRoom: null
     }
   },
   props: {
     restaurants: [],
     restoToMap: null,
-    user: null
+    user: null,
+    rooms: null
   },
   mounted() {
     this.getUserLocation()
-
-    socket.on('server-map-data', (payload) => {
-
-    })
   },
   watch: {
     restoToMap: function (restoToMap) {
@@ -69,6 +67,9 @@ export default {
     },
     restoSelected() {
       this.onDataChange()
+    },
+    rooms(newValue, oldValue) {
+      this.currentRoom = newValue?.find(room => room.id === this.currentRoom?.id)
     }
   },
   methods: {
@@ -117,8 +118,6 @@ export default {
         this.getDistance(this.polyline[1], this.polyline[2])
         t2 = this.temps
         this.temps = t1 + t2
-      } else {
-        console.log('met le putain de rdv enculé')
       }
     },
     getDistance(marker1, marker2) {

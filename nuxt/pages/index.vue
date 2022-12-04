@@ -2,12 +2,14 @@
   <div id="content">
     <LoginScreen @userLoggedIn="onLogin" v-if="!user" />
     <RestaurantList :restaurants="restaurants" @restoSelected="onRestoSelected" />
-    <Map :restaurants="restaurants" :v-if="restoToMap" :restoToMap="restoToMap" :user="user" />
+    <Map :restaurants="restaurants" :v-if="restoToMap" :restoToMap="restoToMap" :user="user" :rooms="rooms" />
     <Chat :user="user" :rooms="rooms" />
   </div>
 </template>
 
 <script>
+import socket from '../services/socket-client.js'
+
 export default {
   data() {
     return {
@@ -21,6 +23,12 @@ export default {
       rooms: null,
       restoToMap: null
     }
+  },
+  mounted() {
+    socket.on('server-map-data', (payload) => {
+      console.log('server-map-data', payload)
+      this.rooms = payload
+    })
   },
   methods: {
     onLogin(payload) {

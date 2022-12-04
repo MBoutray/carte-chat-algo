@@ -23,26 +23,6 @@ const rooms = [
   new Room(2),
   new Room(3),
   new Room(4)
-  // {
-  //   id: 1,
-  //   name: 'room 1',
-  //   users: [],
-  //   map: {
-  //     rdv: null
-  //   }
-  // },
-  // {
-  //   id: 2,
-  //   name: 'room 2'
-  // },
-  // {
-  //   id: 3,
-  //   name: 'room 3'
-  // },
-  // {
-  //   id: 4,
-  //   name: 'room 4'
-  // }
 ]
 
 // Socket connection
@@ -145,6 +125,48 @@ io.on('connection', (socket) => {
       // Notify all the users that the user has left the app
       io.emit('user_left', user)
     }
+  })
+
+  // When the user modifies map data
+  socket.on('user-map-data', (data) => {
+    if(data.user) {
+      // Find the room in the rooms dataset
+      console.log('user-map-data', data)
+      let roomFound = rooms.find((r) => r.users.some((u) => u.id === data.user.id))
+
+      console.log('roomFound', roomFound)
+      
+      if(roomFound) {
+        // Find the user data in the room to update
+        let userData = roomFound?.map.userData.find((u) => u.id === data.user.id)
+        console.log('userData', userData )
+        
+        // Update the user data
+        if (userData) {
+          roomFound.map.rdv = data.rdv
+          userData.resto = data.restoSelected
+          userData.position = data.userPosition
+          
+          console.log('update user data : roomFound', roomFound)
+          console.log('update user data : userData', userData )
+        } else {
+          roomFound.map.rdv = data.rdv
+          roomFound.map.userData.push({
+            id: data.user.id,
+            username: data.user.username,
+            resto: data.restoSelected,
+            position: data.userPosition,
+          })
+          console.log('update user data : roomFound', roomFound)
+        }
+  
+        console.log('final room', rooms)
+        console.log('socket rooms', socket.rooms)
+    
+        // Send the new data to the users in the same chat room
+        io.to(roomFound.name).emit('server-map-data', rooms)
+      }
+      }
   })
 
   // When user disconnect from socket

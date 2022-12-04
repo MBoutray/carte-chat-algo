@@ -4,7 +4,7 @@ class Room {
     this.name = `room ${id}`
     this.users = users
     this.messages = []
-    this.map = map ?? { rdv: null, usersPositions: [], restoSelected: null }
+    this.map = map ?? { rdv: null, userData: [] }
   }
 
   getId() {
