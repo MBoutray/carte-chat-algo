@@ -31,7 +31,7 @@ export default {
 .restaurant-list--list {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   list-style: none;
   margin-top: 1.5rem;
 }

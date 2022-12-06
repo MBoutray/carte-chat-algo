@@ -1,12 +1,23 @@
 <template>
   <article class="chatroom">
     <header class="chatroom--header">
-      <button @click.prevent="onReturnClick">Return</button>
-      <p>#{{ chatroom.id }} : {{ chatroom.name }}</p>
+      <div class="action-bar">
+        <button @click.prevent="onReturnClick">Return</button>
+        <p>#{{ chatroom.id }} : {{ chatroom.name }}</p>
+      </div>
+      <div class="user-list">
+        <p class="user-list--title">Users: </p>
+        <ul class="user-list--list">
+          <li class="user-list--user" v-for="user in chatroom.users" :key="user.id">
+            <p class="user--name">{{ user.username }}</p>
+          </li>
+        </ul>
+      </div>
     </header>
     <div class="chatroom--content">
       <ul class="message-list" ref="message_list">
-        <li class="message" v-for="message in messages" :key="message.id" :class="{ you: user.id == message.user.id }">
+        <li class="message" v-for="message in chatroom.messages" :key="message.id"
+          :class="{ you: user.id == message.user.id }">
           <header class="message--header">
             <p class="message--sender">de: {{ message.user.username }}</p>
           </header>
@@ -34,61 +45,8 @@ export default {
   props: ["chatroom", "user"],
   data() {
     return {
-      messages: [
-        // {
-        //   id: 1,
-        //   user: {
-        //     id: 1,
-        //     name: "user 1",
-        //   },
-        //   title: "title 1",
-        //   content: "lorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit amet",
-        // },
-        // {
-        //   id: 2,
-        //   user: {
-        //     id: 2,
-        //     name: "user 2",
-        //   },
-        //   title: "title 1",
-        //   content: "lorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit amet",
-        // },
-        // {
-        //   id: 3,
-        //   user: {
-        //     id: 3,
-        //     name: "user 3",
-        //   },
-        //   title: "title 1",
-        //   content: "lorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit ametlorem ipsum dolor sit amet",
-        // },
-      ],
-      // currentUser: {
-      //   id: 1,
-      //   name: "user 1",
-      // },
       message_value: ""
     }
-  },
-  mounted() {
-    // When a message is received
-    socket.on('emit_message', (message) => {
-      // Get the last id available
-      let nextId = 1;
-
-      if (this.messages.length > 0) {
-        nextId = this.messages[this.messages.length - 1].id + 1;
-      }
-
-      // Add the id to the message
-      console.log("avant message id add")
-      message.id = nextId;
-
-      console.log('received a message', message)
-      // Add the message to the messages array
-      this.messages.push(message)
-      console.log('messages', this.messages)
-    })
   },
   methods: {
     onReturnClick() {
@@ -102,7 +60,7 @@ export default {
         room: this.chatroom
       }
 
-      // this.messages.push
+      this.message_value = ""
 
       socket.emit('send_message', message);
     },
@@ -127,8 +85,29 @@ export default {
 
 .chatroom--header {
   display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.action-bar {
+  display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.user-list {
+  display: flex;
+  justify-content: space-around;
+  gap: 0.5rem;
+}
+.user-list--title {
+  font-weight: bold;
+}
+.user-list--list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
 .chatroom--content {
@@ -176,5 +155,8 @@ export default {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.2rem;
+}
+.chatroom--footer input[type="text"] {
+  width: 100%;
 }
 </style>

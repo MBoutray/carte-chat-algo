@@ -1,6 +1,6 @@
 <template>
   <article class="chat">
-    <ChatroomSelection v-if="!chatroom" @chatroomClicked="onChatroomClicked" />
+    <ChatroomSelection v-if="!chatroom" @chatroomClicked="onChatroomClicked" :rooms="rooms" />
     <Chatroom v-else :user="this.user" :chatroom="this.chatroom" @returnClicked="onReturnClicked" />
   </article>
 </template>
@@ -9,40 +9,20 @@
 import socket from '@/services/socket-client.js'
 
 export default {
-  props: ['user'],
+  props: ['user', 'rooms'],
   data() {
     return {
       chatroom: null
     }
   },
+  watch: {
+    rooms() {
+      this.chatroom = this.rooms.find(room => room.id === this.chatroom?.id)
+    }
+  },
   mounted() {
-    // socket.auth = {
-    //   conv_id: this.conv._id,
-    //   token: session.getToken(),
-    // };
-
     socket.connect()
     console.log('socket connected')
-
-    // Set events
-    // socket.on("connect_error", (err) => {
-    //   console.error(err);
-    // });
-
-    // socket.on("user_id", (userId) => {
-    //   this.userId = userId;
-    // });
-
-    // socket.on("all_messages", (messages) => {
-    //   this.messages = messages;
-    // });
-
-    // socket.on('new_message', (message) => {
-    //   this.messages.push(message)
-    // })
-    // socket.on('emit_message', (message) => {
-    //   this.messages.push(message)
-    // })
   },
   beforeDestroy() {
     socket.disconnect()
@@ -50,11 +30,12 @@ export default {
   },
   methods: {
     onChatroomClicked(chatroom) {
-      this.chatroom = chatroom
-      socket.emit('user_joined_room', chatroom)
+      socket.emit('user_joined_room', chatroom, this.user, (room) => {
+        this.chatroom = room
+      })
     },
     onReturnClicked() {
-      socket.emit('user_left_room', this.chatroom)
+      socket.emit('user_left_room', this.chatroom, this.user)
       this.chatroom = null
     }
   }
